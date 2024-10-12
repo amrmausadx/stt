@@ -4,7 +4,7 @@ from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 import librosa
 import numpy as np
 import tempfile
-import os ,pandas
+import os
 
 # Initialize the model and processor
 @st.cache_resource
@@ -33,6 +33,7 @@ model, processor = load_model()
 audio_file = st.file_uploader("Upload an audio file", type=["wav", "mp3"])
 
 # Real-time audio recording using streamlit_webrtc (optional feature if installed)
+webrtc_ctx = None
 try:
     from streamlit_webrtc import webrtc_streamer
     import av
@@ -67,7 +68,7 @@ if audio_file is not None:
             transcription = transcribe_audio(file_path, model, processor)
             st.text_area("Transcription", transcription)
 
-# Record transcription for recorded audio
+# Check if webrtc_ctx exists before referencing it
 if webrtc_ctx and webrtc_ctx.audio_receiver:
     if webrtc_ctx.state.playing == False and audio_frame_callback:
         if st.button("Transcribe Recorded Audio"):
