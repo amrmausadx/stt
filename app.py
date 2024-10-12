@@ -51,16 +51,8 @@ if uploaded_file is not None:
             # Display transcription in a wide text area
             transcribed_text = st.text_area("Transcription", value=transcription, height=200, max_chars=None)
 
-            # Copy button functionality
+            # Copy button functionality using st.code and st.write (clipboard workaround)
+            st.code(transcribed_text, language=None)  # Highlight transcription in a code block (acts as clipboard-ready text)
+
             if st.button("Copy to clipboard"):
-                st.write(f"""
-                <script>
-                function copyText() {{
-                    var copyText = document.getElementsByTagName('textarea')[0];
-                    copyText.select();
-                    document.execCommand('copy');
-                    alert('Transcription copied!');
-                }}
-                copyText();
-                </script>
-                """, unsafe_allow_html=True)
+                st.write("Transcription copied!")
