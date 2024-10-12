@@ -25,7 +25,7 @@ def transcribe_audio(audio_file):
     try:
         # Load the audio file
         audio_input, sample_rate = sf.read(audio_file)
-        
+
         # Convert numpy audio data to tensor and resample if needed
         audio_tensor = torch.tensor(audio_input, dtype=torch.float32)  # Ensure it's float32
         audio_tensor = resample_audio(audio_tensor, sample_rate)
@@ -49,17 +49,18 @@ if uploaded_file is not None:
         transcription = transcribe_audio(uploaded_file)
         if transcription:
             # Display transcription in a wide text area
-            transcribed_text = st.text_area("Transcription", value=transcription, height=200)
+            transcribed_text = st.text_area("Transcription", value=transcription, height=200, key="transcription_area")
 
             # Create a copy button using JavaScript for clipboard functionality
             copy_code = f"""
             <script>
-            function copyToClipboard(text) {{
+            function copyToClipboard() {{
+                const text = document.getElementById("transcription_area").value;
                 navigator.clipboard.writeText(text).then(function() {{
                     alert("Transcription copied!");
                 }});
             }}
             </script>
-            <button onclick="copyToClipboard('{transcribed_text}')">Copy to clipboard</button>
+            <button onclick="copyToClipboard()">Copy to clipboard</button>
             """
             st.markdown(copy_code, unsafe_allow_html=True)
