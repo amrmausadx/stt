@@ -45,22 +45,25 @@ def transcribe_audio(audio_file):
 uploaded_file = st.file_uploader("Upload an audio file", type=["wav", "mp3", "flac"])
 if uploaded_file is not None:
     st.audio(uploaded_file, format='audio/wav')
-    with st.spinner("Transcribing audio..."):
-        transcription = transcribe_audio(uploaded_file)
-        if transcription:
-            # Display transcription in a wide text area
-            transcribed_text = st.text_area("Transcription", value=transcription, height=200)
 
-            # Button to copy to clipboard
-            if st.button("Copy to clipboard"):
-                # Use Streamlit's session state to store the transcription
-                st.session_state.transcription = transcription
-                
-                # JavaScript code for copying to clipboard
-                st.markdown(f"""
-                <script>
-                navigator.clipboard.writeText("{st.session_state.transcription}").then(function() {{
-                    alert("Transcription copied!");
-                }});
-                </script>
-                """, unsafe_allow_html=True)
+    # Only transcribe if the uploaded file has changed
+    if 'transcription' not in st.session_state or st.session_state.uploaded_file != uploaded_file:
+        with st.spinner("Transcribing audio..."):
+            transcription = transcribe_audio(uploaded_file)
+            if transcription:
+                st.session_state.transcription = transcription  # Store the transcription in session state
+                st.session_state.uploaded_file = uploaded_file  # Store the uploaded file
+
+    # Display transcription in a wide text area
+    transcribed_text = st.text_area("Transcription", value=st.session_state.get("transcription", ""), height=200)
+
+    # Button to copy to clipboard
+    if st.button("Copy to clipboard"):
+        # JavaScript code for copying to clipboard
+        st.markdown(f"""
+        <script>
+        navigator.clipboard.writeText("{st.session_state.transcription}").then(function() {{
+            alert("Transcription copied!");
+        }});
+        </script>
+        """, unsafe_allow_html=True)
