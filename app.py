@@ -49,18 +49,18 @@ if uploaded_file is not None:
         transcription = transcribe_audio(uploaded_file)
         if transcription:
             # Display transcription in a wide text area
-            transcribed_text = st.text_area("Transcription", value=transcription, height=200, key="transcription_area")
+            transcribed_text = st.text_area("Transcription", value=transcription, height=200)
 
-            # Create a copy button using JavaScript for clipboard functionality
-            copy_code = f"""
-            <script>
-            function copyToClipboard() {{
-                const text = document.getElementById("transcription_area").value;
-                navigator.clipboard.writeText(text).then(function() {{
+            # Button to copy to clipboard
+            if st.button("Copy to clipboard"):
+                # Use Streamlit's session state to store the transcription
+                st.session_state.transcription = transcription
+                
+                # JavaScript code for copying to clipboard
+                st.markdown(f"""
+                <script>
+                navigator.clipboard.writeText("{st.session_state.transcription}").then(function() {{
                     alert("Transcription copied!");
                 }});
-            }}
-            </script>
-            <button onclick="copyToClipboard()">Copy to clipboard</button>
-            """
-            st.markdown(copy_code, unsafe_allow_html=True)
+                </script>
+                """, unsafe_allow_html=True)
