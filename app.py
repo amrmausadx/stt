@@ -57,15 +57,4 @@ if uploaded_file is not None:
     # Display transcription in a wide text area
     transcribed_text = st.text_area("Transcription", value=st.session_state.get("transcription", ""), height=200)
 
-    # Button to copy to clipboard
-    copy_button = st.button("Copy to clipboard")
-
-    if copy_button and st.session_state.get("transcription"):
-        # JavaScript code for copying to clipboard
-        st.markdown(f"""
-        <script>
-        navigator.clipboard.writeText(`{st.session_state.transcription}`).then(function() {{
-            alert("Transcription copied!");
-        }});
-        </script>
-        """, unsafe_allow_html=True)
+    
