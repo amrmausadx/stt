@@ -1,83 +1,76 @@
 import streamlit as st
 import torch
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
-import librosa
-import tempfile
+import soundfile as sf
 import os
+from streamlit_webrtc import webrtc_streamer, AudioProcessorBase, WebRtcMode, ClientSettings
 
-# Initialize the model and processor
-@st.cache_resource
-def load_model():
-    model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-large-960h")
-    processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-large-960h")
-    return model, processor
+# Load pre-trained model and processor from Hugging Face
+MODEL_NAME = "facebook/wav2vec2-large-960h-lv60-self"
+processor = Wav2Vec2Processor.from_pretrained(MODEL_NAME)
+model = Wav2Vec2ForCTC.from_pretrained(MODEL_NAME)
 
-# Function to convert speech to text
-def transcribe_audio(audio_file, model, processor):
-    audio, rate = librosa.load(audio_file, sr=16000)
-    input_values = processor(audio, return_tensors="pt", sampling_rate=16000).input_values
-    logits = model(input_values).logits
+st.title("Speech to Text App")
+
+# Function to transcribe audio files
+def transcribe_audio(file_path):
+    # Load audio file
+    audio_input, _ = sf.read(file_path)
+    
+    # Tokenize the input audio
+    input_values = processor(audio_input, return_tensors="pt", sampling_rate=16000).input_values
+
+    # Get logits from model
+    with torch.no_grad():
+        logits = model(input_values).logits
+
+    # Decode the logits to text
     predicted_ids = torch.argmax(logits, dim=-1)
     transcription = processor.decode(predicted_ids[0])
+
     return transcription
 
-# Streamlit App Layout
-st.title("Speech to Text App")
-st.write("Upload an audio file or record your voice to get the transcription.")
-
-# Load Model and Processor
-model, processor = load_model()
-
-# Initialize file_path as None
-file_path = None
-
-# File uploader
-audio_file = st.file_uploader("Upload an audio file", type=["wav", "mp3"])
-
-# Real-time audio recording using streamlit_webrtc (optional feature if installed)
-webrtc_ctx = None
-try:
-    from streamlit_webrtc import webrtc_streamer
-    import av
-
-    def audio_frame_callback(frame: av.AudioFrame):
-        sound_array = frame.to_ndarray()
-        # Save audio frames to temporary file
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
-            librosa.output.write_wav(tmp_file.name, sound_array, sr=16000)
-            return tmp_file.name
-
-    webrtc_ctx = webrtc_streamer(key="speech-recorder", audio_frame_callback=audio_frame_callback, media_stream_constraints={"audio": True})
-
-    if webrtc_ctx.audio_receiver:
-        st.write("Recording... Click the stop button when done.")
-
-except ImportError:
-    st.warning("Install streamlit-webrtc to enable the real-time recording feature.")
-
-# Process uploaded or recorded audio
-if audio_file is not None:
-    # Save the uploaded file temporarily
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(audio_file.read())
-        file_path = tmp_file.name
-
-    st.audio(audio_file, format='audio/wav')
-
-    # Transcribe the uploaded audio
-    if st.button("Transcribe"):
+# Upload audio file
+uploaded_file = st.file_uploader("Upload an audio file", type=["wav", "mp3", "flac"])
+if uploaded_file:
+    file_path = os.path.join("tempDir", uploaded_file.name)
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+    
+    # Transcribe uploaded audio
+    st.audio(file_path)
+    if st.button("Transcribe Audio File"):
         with st.spinner("Transcribing..."):
-            transcription = transcribe_audio(file_path, model, processor)
-            st.text_area("Transcription", transcription)
+            transcription = transcribe_audio(file_path)
+        st.text_area("Transcription", transcription)
 
-# Check if webrtc_ctx exists before referencing it
-if webrtc_ctx and webrtc_ctx.audio_receiver:
-    if webrtc_ctx.state.playing == False and audio_frame_callback:
-        if st.button("Transcribe Recorded Audio"):
-            with st.spinner("Transcribing..."):
-                transcription = transcribe_audio(webrtc_ctx.audio_receiver.audio_buffer, model, processor)
+# WebRTC for real-time recording and transcription
+class AudioProcessor(AudioProcessorBase):
+    def __init__(self):
+        self.buffer = b''
+
+    def recv(self, frame):
+        self.buffer += frame.to_ndarray().tobytes()
+        return frame
+
+webrtc_ctx = webrtc_streamer(
+    key="example", 
+    mode=WebRtcMode.SENDRECV,
+    client_settings=ClientSettings(
+        media_stream_constraints={"audio": True, "video": False},
+    ),
+    audio_processor_factory=AudioProcessor,
+)
+
+if webrtc_ctx and webrtc_ctx.state.playing:
+    if st.button("Transcribe Recorded Audio"):
+        with st.spinner("Transcribing recorded audio..."):
+            audio_data = webrtc_ctx.audio_processor.buffer
+            if audio_data:
+                file_path = "tempDir/recorded_audio.wav"
+                with open(file_path, "wb") as f:
+                    f.write(audio_data)
+                transcription = transcribe_audio(file_path)
                 st.text_area("Transcription", transcription)
-
-# Safely clear temporary files if file_path is defined
-if file_path and os.path.exists(file_path):
-    os.remove(file_path)
+            else:
+                st.warning("No audio recorded yet.")
