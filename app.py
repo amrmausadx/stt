@@ -27,7 +27,7 @@ def transcribe_audio(audio_file):
         audio_input, sample_rate = sf.read(audio_file)
         
         # Convert numpy audio data to tensor and resample if needed
-        audio_tensor = torch.tensor(audio_input)
+        audio_tensor = torch.tensor(audio_input, dtype=torch.float32)  # Ensure it's float32
         audio_tensor = resample_audio(audio_tensor, sample_rate)
 
         # Process audio and get model prediction
