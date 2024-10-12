@@ -1,76 +1,64 @@
 import streamlit as st
-import torch
-from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 import soundfile as sf
 import os
-from streamlit_webrtc import webrtc_streamer, AudioProcessorBase, WebRtcMode, ClientSettings
+import torch
+from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 
-# Load pre-trained model and processor from Hugging Face
-MODEL_NAME = "facebook/wav2vec2-large-960h-lv60-self"
+# Set up Wav2Vec2 model and processor
+MODEL_NAME = "facebook/wav2vec2-base-960h"  # Use a smaller model
 processor = Wav2Vec2Processor.from_pretrained(MODEL_NAME)
 model = Wav2Vec2ForCTC.from_pretrained(MODEL_NAME)
 
-st.title("Speech to Text App")
+st.title("Speech-to-Text App")
+st.write("Upload an audio file, and the application will transcribe it using a pre-trained Wav2Vec2 model.")
 
-# Function to transcribe audio files
+# Limit the duration of the audio to 60 seconds
+max_duration = 60  # Max duration in seconds
+
 def transcribe_audio(file_path):
-    # Load audio file
-    audio_input, _ = sf.read(file_path)
+    try:
+        audio_input, sample_rate = sf.read(file_path)
+        if len(audio_input) / sample_rate > max_duration:
+            st.error(f"Audio file exceeds maximum duration of {max_duration} seconds. Please upload a shorter file.")
+            return None
+
+        input_values = processor(audio_input, sampling_rate=sample_rate, return_tensors="pt").input_values
+        with st.spinner("Transcribing..."):
+            logits = model(input_values).logits
+            predicted_ids = torch.argmax(logits, dim=-1)
+            transcription = processor.batch_decode(predicted_ids)[0]
+            return transcription
+    except Exception as e:
+        st.error(f"Error in processing audio file: {e}")
+        return None
+
+# Upload an audio file
+uploaded_file = st.file_uploader("Choose an audio file...", type=["wav", "mp3"])
+
+if uploaded_file is not None:
+    file_path = f"temp_audio.{uploaded_file.name.split('.')[-1]}"
     
-    # Tokenize the input audio
-    input_values = processor(audio_input, return_tensors="pt", sampling_rate=16000).input_values
-
-    # Get logits from model
-    with torch.no_grad():
-        logits = model(input_values).logits
-
-    # Decode the logits to text
-    predicted_ids = torch.argmax(logits, dim=-1)
-    transcription = processor.decode(predicted_ids[0])
-
-    return transcription
-
-# Upload audio file
-uploaded_file = st.file_uploader("Upload an audio file", type=["wav", "mp3", "flac"])
-if uploaded_file:
-    file_path = os.path.join("tempDir", uploaded_file.name)
+    # Save uploaded file to disk
     with open(file_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
     
-    # Transcribe uploaded audio
-    st.audio(file_path)
-    if st.button("Transcribe Audio File"):
-        with st.spinner("Transcribing..."):
-            transcription = transcribe_audio(file_path)
-        st.text_area("Transcription", transcription)
+    st.audio(file_path)  # Play the uploaded audio file
 
-# WebRTC for real-time recording and transcription
-class AudioProcessor(AudioProcessorBase):
-    def __init__(self):
-        self.buffer = b''
+    # Transcribe button
+    if st.button("Transcribe"):
+        transcription = transcribe_audio(file_path)
+        if transcription:
+            st.write("### Transcription")
+            st.text_area("Transcription", transcription)
 
-    def recv(self, frame):
-        self.buffer += frame.to_ndarray().tobytes()
-        return frame
+        # Clear session cache after transcription
+        st.caching.clear_cache()
 
-webrtc_ctx = webrtc_streamer(
-    key="example", 
-    mode=WebRtcMode.SENDRECV,
-    client_settings=ClientSettings(
-        media_stream_constraints={"audio": True, "video": False},
-    ),
-    audio_processor_factory=AudioProcessor,
-)
+    # Clean up the temp file after use
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
-if webrtc_ctx and webrtc_ctx.state.playing:
-    if st.button("Transcribe Recorded Audio"):
-        with st.spinner("Transcribing recorded audio..."):
-            audio_data = webrtc_ctx.audio_processor.buffer
-            if audio_data:
-                file_path = "tempDir/recorded_audio.wav"
-                with open(file_path, "wb") as f:
-                    f.write(audio_data)
-                transcription = transcribe_audio(file_path)
-                st.text_area("Transcription", transcription)
-            else:
-                st.warning("No audio recorded yet.")
+# Provide option to clear session manually if needed
+if st.button("Clear Session"):
+    st.caching.clear_cache()
+    st.success("Session cleared!")
