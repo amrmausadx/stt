@@ -4,7 +4,7 @@ from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 import librosa
 import numpy as np
 import tempfile
-import os
+import os ,pandas
 
 # Initialize the model and processor
 @st.cache_resource
