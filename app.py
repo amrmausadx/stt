@@ -48,5 +48,19 @@ if uploaded_file is not None:
     with st.spinner("Transcribing audio..."):
         transcription = transcribe_audio(uploaded_file)
         if transcription:
-            st.write("Transcription:")
-            st.text(transcription)
+            # Display transcription in a wide text area
+            transcribed_text = st.text_area("Transcription", value=transcription, height=200, max_chars=None)
+
+            # Copy button functionality
+            if st.button("Copy to clipboard"):
+                st.write(f"""
+                <script>
+                function copyText() {{
+                    var copyText = document.getElementsByTagName('textarea')[0];
+                    copyText.select();
+                    document.execCommand('copy');
+                    alert('Transcription copied!');
+                }}
+                copyText();
+                </script>
+                """, unsafe_allow_html=True)
