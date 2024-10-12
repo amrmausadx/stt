@@ -2,3 +2,4 @@ streamlit
 transformers
 torch
 librosa
+llvmlite==0.37.0
