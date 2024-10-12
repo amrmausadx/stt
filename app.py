@@ -2,7 +2,6 @@ import streamlit as st
 import torch
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 import librosa
-import numpy as np
 import tempfile
 import os
 
@@ -28,6 +27,9 @@ st.write("Upload an audio file or record your voice to get the transcription.")
 
 # Load Model and Processor
 model, processor = load_model()
+
+# Initialize file_path as None
+file_path = None
 
 # File uploader
 audio_file = st.file_uploader("Upload an audio file", type=["wav", "mp3"])
@@ -76,6 +78,6 @@ if webrtc_ctx and webrtc_ctx.audio_receiver:
                 transcription = transcribe_audio(webrtc_ctx.audio_receiver.audio_buffer, model, processor)
                 st.text_area("Transcription", transcription)
 
-# Clear temporary files
-if os.path.exists(file_path):
+# Safely clear temporary files if file_path is defined
+if file_path and os.path.exists(file_path):
     os.remove(file_path)
