@@ -41,20 +41,48 @@ def transcribe_audio(audio_file):
         st.error(f"Error in processing audio file: {str(e)}")
         return None
 
-# Upload audio file or record audio
-uploaded_file = st.file_uploader("Upload an audio file", type=["wav", "mp3", "flac"])
-if uploaded_file is not None:
-    st.audio(uploaded_file, format='audio/wav')
+# Sidebar with navigation
+st.sidebar.title("Navigation")
+option = st.sidebar.selectbox("Choose a view", ["Upload Audio", "View Transcription", "About"])
 
-    # Only transcribe if the uploaded file has changed
-    if 'transcription' not in st.session_state or st.session_state.uploaded_file != uploaded_file:
-        with st.spinner("Transcribing audio..."):
-            transcription = transcribe_audio(uploaded_file)
-            if transcription:
-                st.session_state.transcription = transcription  # Store the transcription in session state
-                st.session_state.uploaded_file = uploaded_file  # Store the uploaded file
-
-    # Display transcription in a wide text area
-    transcribed_text = st.text_area("Transcription", value=st.session_state.get("transcription", ""), height=200)
-
+# View 1: Upload and Transcribe Audio
+if option == "Upload Audio":
+    st.header("Upload and Transcribe Audio")
     
+    uploaded_file = st.file_uploader("Upload an audio file", type=["wav", "mp3", "flac"])
+    if uploaded_file is not None:
+        st.audio(uploaded_file, format='audio/wav')
+
+        # Only transcribe if the uploaded file has changed
+        if 'transcription' not in st.session_state or st.session_state.uploaded_file != uploaded_file:
+            with st.spinner("Transcribing audio..."):
+                transcription = transcribe_audio(uploaded_file)
+                if transcription:
+                    st.session_state.transcription = transcription  # Store the transcription in session state
+                    st.session_state.uploaded_file = uploaded_file  # Store the uploaded file
+
+# View 2: Display Transcription
+elif option == "View Transcription":
+    st.header("View Transcription")
+    
+    if 'transcription' in st.session_state:
+        # Display transcription in a wide text area
+        transcribed_text = st.text_area("Transcription", value=st.session_state.get("transcription", ""), height=200)
+    else:
+        st.write("No transcription available. Please upload and transcribe an audio file first.")
+
+# View 3: About Section
+elif option == "About":
+    st.header("About This Application")
+    st.write("""
+        This Speech-to-Text application allows users to upload audio files or record their voice, 
+        and converts the speech into text using Hugging Face's Wav2Vec2 model. 
+        The app is built using Streamlit and deployed with continuous integration via GitHub Actions.
+    """)
+    st.write("""
+        ### Features:
+        - Upload audio files in WAV, MP3, or FLAC format.
+        - View transcriptions of uploaded audio.
+        - Integrated with pre-trained models from Hugging Face for state-of-the-art speech recognition.
+    """)
+
