@@ -6,3 +6,6 @@ torchaudio
 googletrans==4.0.0-rc1
 Pillow
 timm
+wordcloud
+matplotlib
+scikit-learn
