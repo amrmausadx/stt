@@ -1,13 +1,15 @@
 import streamlit as st
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress all warnings
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Just shup up
 
 # Import the view modules
-from views import transcribe, ner_filling, about, object_detection,topic_modeling
+from views import transcribe, ner_filling, about, object_detection ,\
+      topic_modeling, question_answering
 
 # Set page configuration at the very beginning
 st.set_page_config(page_title="تطبيق تحويل الصوت إلى نص", layout="wide")
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress all warnings
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Just shup up
 
 st.markdown(
     """
@@ -28,6 +30,7 @@ mymenu = ['تحويل الصوت إلى نص',
                                          'التعرف على الكيانات وإكمال الجمل والترجمة',
                                           'التعرف على الاشياء',
                                           'نمذجة المواضيع',
+                                          'اجابة الاسئلة',
                                             'حول']
 # Sidebar with options
 menu = st.sidebar.selectbox("القائمة", mymenu)
@@ -43,6 +46,9 @@ elif menu == mymenu[2]:#'التعرف على الاشياء':
 
 elif menu == mymenu[3]:#'نمذجة المواضيع':
     topic_modeling.show()
+
+elif menu == mymenu[4]:#'نمذجة المواضيع':
+    question_answering.show()
 
 else:# menu == mymenu[3]:#'حول':
     about.show()
