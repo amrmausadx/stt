@@ -1,26 +1,26 @@
 import streamlit as st
 from transformers import pipeline
 
-# Define the show method for the question answering view
+# تعريف دالة العرض لعرض سؤال وإجابة
 def show():
-    st.title("Question Answering Using Hugging Face Models")
+    st.title("الإجابة على الأسئلة باستخدام نماذج هاجينغ فيس")
     
-    # User input: paragraph or document
-    user_text = st.text_area("Input a paragraph or document:")
+    # إدخال المستخدم: فقرة أو مستند
+    user_text = st.text_area("أدخل فقرة أو مستند:")
     
-    # User input: question
-    user_question = st.text_input("Ask a question based on the text:")
+    # إدخال المستخدم: السؤال
+    user_question = st.text_input("اسأل سؤالاً بناءً على النص:")
     
-    # Button to trigger question answering
-    if st.button("Get Answer"):
+    # زر لتفعيل الإجابة على السؤال
+    if st.button("احصل على إجابة"):
         if user_text and user_question:
-            # Load a pre-trained question-answering model
+            # تحميل نموذج إجابة على الأسئلة مسبق التدريب
             qa_pipeline = pipeline('question-answering', model='distilbert-base-cased-distilled-squad')
-            # Use the model to get the answer
+            # استخدام النموذج للحصول على الإجابة
             answer = qa_pipeline(question=user_question, context=user_text)
             
-            # Display the answer
-            st.subheader("Answer:")
+            # عرض الإجابة
+            st.subheader("الإجابة:")
             st.write(answer['answer'])
         else:
-            st.warning("Please input both the text and a question.")
+            st.warning("يرجى إدخال كل من النص والسؤال.")
