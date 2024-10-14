@@ -51,7 +51,7 @@ elif menu == mymenu[4]:#'نمذجة المواضيع':
     question_answering.show()
 
 elif menu == mymenu[5]:#'نمذجة المواضيع':
-    trans_grammer.show()
+    pass #trans_grammer.show()
 
 else:# menu == mymenu[3]:#'حول':
     about.show()
