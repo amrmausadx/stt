@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 # Import the view modules
-from views import transcribe, ner_filling, about, object_detection ,topic_modeling, question_answering,trans_grammer
+from views import transcribe, ner_filling, about, object_detection ,topic_modeling, question_answering,trans_grammar
 
 # Set page configuration at the very beginning
 st.set_page_config(page_title="نماذج متنوعة", layout="wide")
@@ -51,7 +51,7 @@ elif menu == mymenu[4]:#'اجابة الاسئلة':
     question_answering.show()
 
 elif menu == mymenu[5]:#'قواعد وترجمة':
-    trans_grammer.show()#pass #
+    trans_grammar.show()#pass #
 
 else:# menu == mymenu[3]:#'حول':
     about.show()
