@@ -4,7 +4,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress all warnings
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Just shup up
 
 # Import the view modules
-from views import transcribe, ner_filling, about, object_detection
+from views import transcribe, ner_filling, about, object_detection,topic_modeling
 
 # Set page configuration at the very beginning
 st.set_page_config(page_title="تطبيق تحويل الصوت إلى نص", layout="wide")
@@ -27,10 +27,10 @@ st.markdown(
 mymenu = ['تحويل الصوت إلى نص',
                                          'التعرف على الكيانات وإكمال الجمل والترجمة',
                                           'التعرف على الاشياء',
+                                          'نمذجة المواضيع',
                                             'حول']
 # Sidebar with options
 menu = st.sidebar.selectbox("القائمة", mymenu)
-
 # Call the appropriate view based on the selection
 if menu == mymenu[0]:# 'تحويل الصوت إلى نص'
     transcribe.show()
@@ -41,5 +41,8 @@ elif menu == mymenu[1]:#'التعرف على الكيانات وإكمال ال�
 elif menu == mymenu[2]:#'التعرف على الاشياء':
     object_detection.show()
 
-elif menu == mymenu[3]:#'حول':
+elif menu == mymenu[3]:#'نمذجة المواضيع':
+    topic_modeling.show()
+
+else:# menu == mymenu[3]:#'حول':
     about.show()
