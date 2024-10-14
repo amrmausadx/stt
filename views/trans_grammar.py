@@ -15,7 +15,7 @@ def show():
     # Buttons for translation and grammar correction
     if st.button("ترجمة"):
         if user_text:
-            # Load a pre-trained translation model (example: English to Arabic)
+            # Load a pre-trained translation model
             translation_model = pipeline("translation", model="Helsinki-NLP/opus-mt-en-ar")
             translation = translation_model(user_text)
             
@@ -27,11 +27,11 @@ def show():
     
     if st.button("فحص القواعد"):
         if user_text:
-            # Load a pre-trained grammar correction model
-            grammar_correction_model = pipeline("text2text-generation", model="t5-base")
+            # Load a grammar correction model
+            grammar_correction_model = pipeline("text2text-generation", model="prithivida/grammar_error_correcter_v1")
             
-            # Format the input for grammar correction task
-            corrected_text = grammar_correction_model(f"fix grammar: {user_text}")
+            # Pass the user text directly
+            corrected_text = grammar_correction_model(user_text)
             
             # Display the corrected text
             st.subheader("النص المصحح:")
