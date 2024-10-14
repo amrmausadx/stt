@@ -2,8 +2,7 @@ import streamlit as st
 import os
 
 # Import the view modules
-from views import transcribe, ner_filling, about, object_detection ,\
-      topic_modeling, question_answering,trans_grammer
+from views import transcribe, ner_filling, about, object_detection ,topic_modeling, question_answering,trans_grammer
 
 # Set page configuration at the very beginning
 st.set_page_config(page_title="نماذج متنوعة", layout="wide")
