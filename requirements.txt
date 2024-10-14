@@ -9,3 +9,4 @@ timm
 wordcloud
 matplotlib
 scikit-learn
+sentencepiece
