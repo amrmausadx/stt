@@ -1,25 +1,25 @@
 import streamlit as st
 from transformers import pipeline
 
-# تعريف دالة العرض لواجهة أداة ترجمة اللغة وتصحيح القواعد
+# Define the view for language translation and grammar correction
 def show():
     st.title("أداة ترجمة اللغة وتصحيح القواعد")
     
-    # إدخال المستخدم: نص للترجمة أو التصحيح
+    # User input: text to translate or correct
     user_text = st.text_area("أدخل النص لترجمته أو تصحيحه:")
     
-    # إدخال المستخدم: اختيار اللغة المستهدفة للترجمة
+    # User input: select translation target language
     target_language = st.selectbox("اختر اللغة المستهدفة للترجمة:", 
                                     ["الإنجليزية", "العربية", "الفرنسية", "الإسبانية", "الألمانية"])
     
-    # أزرار للترجمة وتصحيح القواعد
+    # Buttons for translation and grammar correction
     if st.button("ترجمة"):
         if user_text:
-            # تحميل نموذج ترجمة مدرب مسبقًا
-            translation_model = pipeline("translation", model="Helsinki-NLP/opus-mt-en-ar")  # مثال للترجمة من الإنجليزية إلى العربية
+            # Load a pre-trained translation model (example: English to Arabic)
+            translation_model = pipeline("translation", model="Helsinki-NLP/opus-mt-en-ar")
             translation = translation_model(user_text)
             
-            # عرض النص المترجم
+            # Display the translated text
             st.subheader("النص المترجم:")
             st.write(translation[0]['translation_text'])
         else:
@@ -27,11 +27,13 @@ def show():
     
     if st.button("فحص القواعد"):
         if user_text:
-            # تحميل نموذج تصحيح القواعد المدرب مسبقًا
-            grammar_correction_model = pipeline("text2text-generation", model="t5-base")  # مثال لتصحيح القواعد
-            corrected_text = grammar_correction_model(f"تصحيح القواعد: {user_text}")
+            # Load a pre-trained grammar correction model
+            grammar_correction_model = pipeline("text2text-generation", model="t5-base")
             
-            # عرض النص المصحح
+            # Format the input for grammar correction task
+            corrected_text = grammar_correction_model(f"fix grammar: {user_text}")
+            
+            # Display the corrected text
             st.subheader("النص المصحح:")
             st.write(corrected_text[0]['generated_text'])
         else:
