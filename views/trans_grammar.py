@@ -10,13 +10,22 @@ def show():
     
     # User input: select translation target language
     target_language = st.selectbox("اختر اللغة المستهدفة للترجمة:", 
-                                    ["الإنجليزية", "العربية", "الفرنسية", "الإسبانية", "الألمانية"])
+                                    ["English to Arabic", "English to French", "English to Spanish", "English to German"])
     
     # Buttons for translation and grammar correction
     if st.button("ترجمة"):
         if user_text:
-            # Load a pre-trained translation model
-            translation_model = pipeline("translation", model="Helsinki-NLP/opus-mt-en-ar")
+            # Choose the translation model based on the target language
+            if target_language == "English to Arabic":
+                translation_model = pipeline("translation", model="Helsinki-NLP/opus-mt-en-ar")
+            elif target_language == "English to French":
+                translation_model = pipeline("translation", model="Helsinki-NLP/opus-mt-en-fr")
+            elif target_language == "English to Spanish":
+                translation_model = pipeline("translation", model="Helsinki-NLP/opus-mt-en-es")
+            elif target_language == "English to German":
+                translation_model = pipeline("translation", model="Helsinki-NLP/opus-mt-en-de")
+                
+            # Perform the translation
             translation = translation_model(user_text)
             
             # Display the translated text
