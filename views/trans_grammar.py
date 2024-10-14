@@ -3,7 +3,7 @@ from transformers import pipeline
 
 # Define the view for language translation and grammar correction
 def show():
-    st.title("أداة ترجمة اللغة وتصحيح القواعد")
+    st.title("أداة ترجمة اللغة من الانجليزية وتصحيح القواعد")
     
     # User input: text to translate or correct
     user_text = st.text_area("أدخل النص لترجمته أو تصحيحه:")
