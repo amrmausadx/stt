@@ -6,7 +6,7 @@ os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Just shup up
 # Import the view modules
 from views import transcribe, ner_filling, about, object_detection
 
-# Set RTL layout for the entire app
+# Set page configuration at the very beginning
 st.set_page_config(page_title="تطبيق تحويل الصوت إلى نص", layout="wide")
 
 st.markdown(

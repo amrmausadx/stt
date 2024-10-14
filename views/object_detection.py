@@ -15,9 +15,7 @@ def generate_caption(image):
     return results[0]['generated_text']  # Adjust according to the model's output format
 
 def show():
-    # Set the page config to make it right-to-left
-    st.set_page_config(page_title="تطبيق الكشف عن الكائنات والتعليق على الصور", layout="wide")
-    
+      
     # Add custom CSS to set right-to-left direction
     st.markdown(
         """
