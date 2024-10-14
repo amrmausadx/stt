@@ -47,11 +47,11 @@ elif menu == mymenu[2]:#'التعرف على الاشياء':
 elif menu == mymenu[3]:#'نمذجة المواضيع':
     topic_modeling.show()
 
-elif menu == mymenu[4]:#'نمذجة المواضيع':
+elif menu == mymenu[4]:#'اجابة الاسئلة':
     question_answering.show()
 
-elif menu == mymenu[5]:#'نمذجة المواضيع':
-    pass #trans_grammer.show()
+elif menu == mymenu[5]:#'قواعد وترجمة':
+    trans_grammer.show()#pass #
 
 else:# menu == mymenu[3]:#'حول':
     about.show()
