@@ -5,7 +5,8 @@ import os
 from views import transcribe, ner_filling, about, object_detection ,topic_modeling, question_answering,trans_grammar
 
 # Set page configuration at the very beginning
-st.set_page_config(page_title="نماذج متنوعة", layout="wide")
+
+st.set_page_config(page_title="نماذج متنوعة", layout="wide", theme={"showGithubIcon": False})
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress all warnings
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Just shup up
