@@ -1,2 +1,7 @@
 [theme]
 showGithubIcon = false
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
