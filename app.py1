@@ -2,7 +2,7 @@ import streamlit as st
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 import torch
 import soundfile as sf
-import torchaudio
+import torchaudio 
 import warnings
 
 # Suppress warnings for uninitialized weights
