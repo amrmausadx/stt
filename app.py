@@ -9,6 +9,8 @@ st.set_page_config(page_title="نماذج متنوعة", layout="wide")#, theme=
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress all warnings
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Just shup up
+os.environ["STREAMLIT_CONFIG_FILE"] = ".streamlit/config.toml"
+
 
 st.markdown(
     """
